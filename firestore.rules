@@ -1,0 +1,182 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Helpers
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Blueprint Validation: InventoryItem
+    function isValidInventoryItem(data) {
+      return data.keys().hasAll([
+          'ownerId',
+          'pedido',
+          'lm',
+          'quantidade',
+          'palete',
+          'dataInventario',
+          'batchId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId',
+          'pedido',
+          'lm',
+          'quantidade',
+          'palete',
+          'dataInventario',
+          'batchId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.ownerId is string
+        && data.ownerId.size() >= 1
+        && data.ownerId.size() <= 128
+        && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerId == request.auth.uid
+        && data.pedido is string
+        && data.pedido.size() <= 100
+        && data.lm is string
+        && data.lm.size() <= 100
+        && data.quantidade is string
+        && data.quantidade.size() <= 50
+        && data.palete is string
+        && data.palete.size() <= 50
+        && data.dataInventario is string
+        && data.dataInventario.size() >= 1
+        && data.dataInventario.size() <= 40
+        && data.batchId is string
+        && data.batchId.size() >= 1
+        && data.batchId.size() <= 128
+        && data.batchId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Blueprint Validation: InventoryBatch
+    function isValidInventoryBatch(data) {
+      return data.keys().hasAll([
+          'ownerId',
+          'title',
+          'supplier',
+          'batchDate',
+          'totalItems',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId',
+          'title',
+          'supplier',
+          'batchDate',
+          'totalItems',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.ownerId is string
+        && data.ownerId.size() >= 1
+        && data.ownerId.size() <= 128
+        && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerId == request.auth.uid
+        && data.title is string
+        && data.title.size() >= 1
+        && data.title.size() <= 120
+        && data.supplier is string
+        && data.supplier.size() >= 1
+        && data.supplier.size() <= 40
+        && (data.supplier == 'LEROY MERLIN' || data.supplier == 'TELHANORTE')
+        && data.batchDate is string
+        && data.batchDate.size() >= 1
+        && data.batchDate.size() <= 30
+        && data.totalItems is int
+        && data.totalItems >= 0
+        && data.totalItems <= 10000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Collection: /inventoryItems/{itemId}
+    match /inventoryItems/{itemId} {
+      allow get: if isSignedIn() && isValidId(itemId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(itemId)
+        && isValidInventoryItem(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(itemId)
+        && isValidInventoryItem(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'pedido',
+            'lm',
+            'quantidade',
+            'palete',
+            'dataInventario',
+            'batchId',
+            'updatedAt'
+          ])
+        );
+
+      allow delete: if isSignedIn() && isValidId(itemId) && existing().ownerId == request.auth.uid;
+    }
+
+    // Collection: /inventoryBatches/{batchId}
+    match /inventoryBatches/{batchId} {
+      allow get: if isSignedIn() && isValidId(batchId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(batchId)
+        && isValidInventoryBatch(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(batchId)
+        && isValidInventoryBatch(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'title',
+            'supplier',
+            'batchDate',
+            'totalItems',
+            'updatedAt'
+          ])
+        );
+
+      allow delete: if isSignedIn() && isValidId(batchId) && existing().ownerId == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .font-display {
+    font-family: 'Oswald', 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .font-mono-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Screen preview of A4 pages */
+.a4-sheet-portrait {
+  width: 210mm;
+  height: 297mm;
+  padding: 10mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #000000;
+  margin: 0 auto 2rem auto;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.14), 0 0 1px 1px rgba(15, 23, 42, 0.08);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.a4-sheet-landscape {
+  width: 100%;
+  max-width: 1122px;
+  aspect-ratio: 297 / 210;
+  padding: 0;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #000000;
+  margin: 0 auto 2rem auto;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.14), 0 0 1px 1px rgba(15, 23, 42, 0.08);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Print-specific rules */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0mm;
+  }
+
+  html,
+  body {
+    width: 100%;
+    height: auto;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .a4-sheet-portrait {
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 8mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .a4-sheet-landscape {
+    width: 297mm !important;
+    height: 210mm !important;
+    padding: 8mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .a4-sheet-portrait:last-child,
+  .a4-sheet-landscape:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .print-black-box {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-border-black {
+    border-color: #000000 !important;
+  }
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "MAPEV - Gerador de Etiquetas Logísticas",
+  "description": "Sistema gerador de máscaras de palete e etiquetas de devolução de materiais em formato A4 pronto para impressão.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

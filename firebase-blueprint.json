@@ -1,0 +1,146 @@
+{
+  "entities": {
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "Represents a single inventoried material item for logistics return labels and Excel inventory export.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the authenticated user who owns this material record.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "pedido": {
+          "type": "string",
+          "description": "Order number (Pedido) of the returned material.",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "lm": {
+          "type": "string",
+          "description": "LM code of the material.",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "quantidade": {
+          "type": "string",
+          "description": "Quantity of the material.",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "palete": {
+          "type": "string",
+          "description": "Pallet number where the material is located (used in Excel inventory).",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "dataInventario": {
+          "type": "string",
+          "description": "Date when the material was inventoried (formatted DD/MM/YYYY).",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "batchId": {
+          "type": "string",
+          "description": "Identifier of the batch ('active' for current list or batch ID for archived history).",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the item was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the item was last updated."
+        }
+      },
+      "required": [
+        "ownerId",
+        "pedido",
+        "lm",
+        "quantidade",
+        "palete",
+        "dataInventario",
+        "batchId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "InventoryBatch": {
+      "title": "InventoryBatch",
+      "description": "Represents a saved inventory history batch header.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the authenticated user who owns this batch.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Descriptive name or label for the saved inventory batch.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Target supplier for the batch.",
+          "enum": ["LEROY MERLIN", "TELHANORTE"],
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "batchDate": {
+          "type": "string",
+          "description": "Formatted date of the inventory batch (DD/MM/YYYY).",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "totalItems": {
+          "type": "number",
+          "description": "Total number of material items recorded in this batch."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the batch was saved."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the batch was last updated."
+        }
+      },
+      "required": [
+        "ownerId",
+        "title",
+        "supplier",
+        "batchDate",
+        "totalItems",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/inventoryItems/{itemId}": {
+      "schema": {
+        "$ref": "#/entities/InventoryItem"
+      },
+      "description": "Stores individual material items for active workspace and saved inventory history batches."
+    },
+    "/inventoryBatches/{batchId}": {
+      "schema": {
+        "$ref": "#/entities/InventoryBatch"
+      },
+      "description": "Stores saved inventory batch metadata for cross-device history access."
+    }
+  }
+}
